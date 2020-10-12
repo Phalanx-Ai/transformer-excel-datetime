@@ -6,7 +6,7 @@ from kbc.env_handler import KBCEnvHandler
 from pathlib import Path
 from datetime import datetime
 
-APP_VERSION = "0.2.0"
+APP_VERSION = "0.2.2"
 
 
 class Component(KBCEnvHandler):
