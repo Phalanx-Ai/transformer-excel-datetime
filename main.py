@@ -1,11 +1,13 @@
 import logging
 import csv
+import os
 
 from kbc.env_handler import KBCEnvHandler
 from pathlib import Path
 from datetime import datetime
 
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.2.0"
+
 
 class Component(KBCEnvHandler):
     MANDATORY_PARS = [
@@ -29,21 +31,19 @@ class Component(KBCEnvHandler):
 
         try:
             self.validate_config(self.MANDATORY_PARS)
-
         except ValueError as e:
             logging.exception(e)
             exit(1)
 
     def run(self):
         def _floatHourToTime(fh):
-            """ From: https://stackoverflow.com/questions/31359150/convert-date-from-excel-in-number-format-to-date-format-python """
+            """ From: https://stackoverflow.com/questions/31359150"""
             h, r = divmod(fh, 1)
             m, r = divmod(r*60, 1)
             return (int(h), int(m), int(r*60))
 
         columns_to_transform = self.cfg_params['datetime_columns'].split(',')
 
-        ## NEW CODE::
         for input_table in self.get_input_tables_definitions():
             with open(input_table.full_path, 'r') as input_file:
                 output_filename = '%s/%s' % (self.tables_out_path, input_table.file_name)
@@ -59,6 +59,6 @@ class Component(KBCEnvHandler):
                         dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int(float(row[col])) - 2)
                         hour, minute, second = _floatHourToTime(float(row[col]) % 1)
                         dt = dt.replace(hour=hour, minute=minute, second=second)
-                        row[c] = int(dt.timestamp())
+                        row[col] = int(dt.timestamp())
 
                     writer.writerow(row)
